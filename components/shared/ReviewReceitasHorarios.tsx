@@ -3,78 +3,90 @@
 import React, { useState, useEffect } from "react";
 import type { Receita, Medicamento, ReceitaStore } from "@/types/receita";
 import { gerarHorariosMedicamento, PreferenciasUsuario } from "@/lib/gerarHorariosMedicamento";
-
-const STORAGE_KEY = "receitas";
+import {
+  getReceitas,
+  createReceita,
+  deleteReceita as deleteReceitaService,
+} from "@/services/receita.service";
 
 export function useReceitas() {
-  const [store, setStore] = useState<ReceitaStore>({ receitas: [] });
+  const [receitas, setReceitas] = useState<Receita[]>([]);
+  const [receitaAtivaId, setReceitaAtivaId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setStore(JSON.parse(saved));
+    async function fetchReceitas() {
+      setLoading(true);
+      try {
+        const data = await getReceitas();
+        setReceitas(data);
+        if (data.length > 0 && !receitaAtivaId) {
+          setReceitaAtivaId(data[0].id);
+        }
+      } catch (err) {
+        // erro de fetch
+      } finally {
+        setLoading(false);
+      }
     }
+    fetchReceitas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
-  }, [store]);
-
-  function addReceita(receita: Omit<Receita, "id" | "created" | "updated">) {
-    const now = new Date().toISOString();
-    setStore((prev) => ({
-      receitas: [
-        ...prev.receitas,
-        {
-          ...receita,
-          id: crypto.randomUUID(),
-          created: now,
-          updated: now,
-        },
-      ],
-    }));
-  }
-
-  function removeReceita(id: string) {
-    setStore((prev) => ({
-      receitas: prev.receitas.filter((r) => r.id !== id),
-    }));
-  }
-
-  // Campo para receita ativa
-  const [receitaAtivaId, setReceitaAtivaId] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Se não houver receita ativa, define a primeira como ativa
-    if (!receitaAtivaId && store.receitas.length > 0) {
-      setReceitaAtivaId(store.receitas[0].id);
+  async function addReceita(receita: Omit<Receita, "id" | "created" | "updated">) {
+    setLoading(true);
+    try {
+      const now = new Date().toISOString();
+      const novaReceita = {
+        ...receita,
+        created: now,
+        updated: now,
+      };
+      const nova = await createReceita(novaReceita);
+      setReceitas((prev) => [...prev, nova]);
+      setReceitaAtivaId(nova.id);
+    } finally {
+      setLoading(false);
     }
-  }, [store.receitas, receitaAtivaId]);
+  }
+
+  async function removeReceita(id: string) {
+    setLoading(true);
+    try {
+      await deleteReceitaService(id);
+      setReceitas((prev) => prev.filter((r) => r.id !== id));
+      if (receitaAtivaId === id) {
+        setReceitaAtivaId(prev => {
+          const restantes = receitas.filter(r => r.id !== id);
+          return restantes.length > 0 ? restantes[0].id : null;
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function setReceitaAtiva(id: string) {
     setReceitaAtivaId(id);
   }
 
-  return { receitas: store.receitas, addReceita, removeReceita, receitaAtivaId, setReceitaAtiva };
+  return { receitas, addReceita, removeReceita, receitaAtivaId, setReceitaAtiva, loading };
 }
 
 export function ReviewReceitasHorarios() {
   const { receitas, addReceita, removeReceita, receitaAtivaId, setReceitaAtiva } = useReceitas();
 
-  // Formulário de receita
   const [nome, setNome] = useState("");
   const [medico, setMedico] = useState("");
   const [dataConsulta, setDataConsulta] = useState("");
   const [observacoes, setObservacoes] = useState("");
 
-  // Formulário de medicamento
   const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
   const [medNome, setMedNome] = useState("");
   const [medDias, setMedDias] = useState("");
   const [medIntervalo, setMedIntervalo] = useState("");
   const [medDosagem, setMedDosagem] = useState("");
   const [medObservacoes, setMedObservacoes] = useState("");
-  // Preferências do usuário para horários
   const [faixaHorarios, setFaixaHorarios] = useState<PreferenciasUsuario["faixaHorarios"]>([]);
   const [evitarHorarios, setEvitarHorarios] = useState<string>("");
   const [inicioDia, setInicioDia] = useState("06:00");
@@ -83,14 +95,12 @@ export function ReviewReceitasHorarios() {
   function handleAddMedicamento(e: React.FormEvent) {
     e.preventDefault();
     if (!medNome || !medDias || !medIntervalo) return;
-    // Monta preferências do usuário
     const preferencias: PreferenciasUsuario = {
       faixaHorarios,
       evitarHorarios: evitarHorarios.split(",").map(h => h.trim()).filter(Boolean),
       inicioDia,
       fimDia,
     };
-    // Gera horários automáticos
     const horarios = gerarHorariosMedicamento({
       dias: Number(medDias),
       intervaloHoras: Number(medIntervalo.replace(/[^\d]/g, "")) || 8,
@@ -141,10 +151,8 @@ export function ReviewReceitasHorarios() {
     setMedicamentos([]);
   }
 
-  // Receita ativa
   const receitaAtiva = receitas.find((r) => r.id === receitaAtivaId) || null;
 
-  // Horários do dia: medicamentos da receita ativa
   const hoje = new Date().toLocaleDateString();
   const horariosDoDia: Medicamento[] = [];
   if (receitaAtiva) {
@@ -155,8 +163,7 @@ export function ReviewReceitasHorarios() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto p-4">
-      {/* Card de receita ativa */}
-      <div className="bg-white rounded shadow p-4">
+      <div className="rounded shadow p-4">
         <h2 className="text-lg font-bold mb-2">Receita Ativa</h2>
         {receitas.length === 0 && <div className="text-gray-500">Nenhuma receita cadastrada.</div>}
         {receitaAtiva ? (
@@ -183,7 +190,6 @@ export function ReviewReceitasHorarios() {
             </ul>
           </div>
         ) : null}
-        {/* Se houver mais de uma receita, permite selecionar qual está ativa */}
         {receitas.length > 1 && (
           <div className="mt-4">
             <label className="font-medium">Selecionar receita ativa:</label>
@@ -199,7 +205,6 @@ export function ReviewReceitasHorarios() {
           </div>
         )}
       </div>
-      {/* Card de horários do dia da receita ativa */}
       <div className="bg-white rounded shadow p-4">
         <h2 className="text-lg font-bold mb-2">Horários do Dia (Receita Ativa)</h2>
         <ul className="space-y-2">
@@ -208,13 +213,11 @@ export function ReviewReceitasHorarios() {
             <li key={m.id} className="border p-2 rounded">
               <span className="font-medium">{m.nome}</span> - {m.dias} dias restantes, intervalo: {m.intervalo}
               {m.dosagem && <span>, dosagem: {m.dosagem}</span>}
-              {/* Notificação visual para horários do dia */}
               {m.horarios && m.horarios.length > 0 && (
                 <ul className="flex flex-wrap gap-2 mt-1">
                   {m.horarios.map((h: string, idx: number) => (
                     <li key={idx} className="bg-blue-100 px-2 py-1 rounded text-xs">
                       {new Date(h).toLocaleString()}
-                      {/* Aqui pode ser integrado com lógica de notificação real */}
                     </li>
                   ))}
                 </ul>
@@ -223,7 +226,6 @@ export function ReviewReceitasHorarios() {
           ))}
         </ul>
       </div>
-      {/* Formulário de cadastro de receita */}
       <div className="col-span-2 bg-white rounded shadow p-4 mt-4">
         <h2 className="text-lg font-bold mb-2">Adicionar Receita</h2>
         <form onSubmit={handleSubmitReceita} className="flex flex-col gap-2 mb-4">
@@ -296,9 +298,9 @@ export function ReviewReceitasHorarios() {
               <div className="flex flex-col gap-2 mt-2">
                 <label className="font-medium">Preferências de horários</label>
                 <div className="flex gap-2">
-                  <label><input type="checkbox" checked={faixaHorarios.includes("manha")} onChange={e => setFaixaHorarios(faixaHorarios => e.target.checked ? [...faixaHorarios, "manha"] : faixaHorarios.filter(f => f !== "manha"))}/> Manhã</label>
-                  <label><input type="checkbox" checked={faixaHorarios.includes("tarde")} onChange={e => setFaixaHorarios(faixaHorarios => e.target.checked ? [...faixaHorarios, "tarde"] : faixaHorarios.filter(f => f !== "tarde"))}/> Tarde</label>
-                  <label><input type="checkbox" checked={faixaHorarios.includes("noite")} onChange={e => setFaixaHorarios(faixaHorarios => e.target.checked ? [...faixaHorarios, "noite"] : faixaHorarios.filter(f => f !== "noite"))}/> Noite</label>
+                  <label><input type="checkbox" checked={faixaHorarios.includes("manha")} onChange={e => setFaixaHorarios(faixaHorarios => e.target.checked ? [...faixaHorarios, "manha"] : faixaHorarios.filter(f => f !== "manha"))} /> Manhã</label>
+                  <label><input type="checkbox" checked={faixaHorarios.includes("tarde")} onChange={e => setFaixaHorarios(faixaHorarios => e.target.checked ? [...faixaHorarios, "tarde"] : faixaHorarios.filter(f => f !== "tarde"))} /> Tarde</label>
+                  <label><input type="checkbox" checked={faixaHorarios.includes("noite")} onChange={e => setFaixaHorarios(faixaHorarios => e.target.checked ? [...faixaHorarios, "noite"] : faixaHorarios.filter(f => f !== "noite"))} /> Noite</label>
                 </div>
                 <input
                   type="text"

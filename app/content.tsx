@@ -34,7 +34,7 @@ export function Content() {
     const [iaStatus, setIaStatus] = useState<"idle" | "loading" | "done">("idle");
 
     return (
-        <div className="min-h-screen flex flex-col gap-6 px-2 sm:px-4 py-6 sm:py-8 text-zinc-800 bg-white w-full">
+        <div className="min-h-screen flex flex-col gap-6 px-2 sm:px-4 py-6 sm:py-8 text-zinc-800 w-full">
             <h1 className="text-2xl font-bold text-start text-[--text-main]">Olá! Aqui está seu dia</h1>
             <p className="text-start text-zinc-500 mb-2">Resumo dos horários e medicamentos ativos.</p>
 
