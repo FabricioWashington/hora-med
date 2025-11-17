@@ -1,23 +1,29 @@
-export interface Medicamento {
-    id: string;
+
+export interface MedicamentoReceita {
     nome: string;
-    dias: number;
-    intervalo: string;
-    dosagem: string;
+    quantidade_comprimidos: number;
+    quantidade_dia: number;
+    quantidade_mes: number;
+    intervalo_horas: number;
+    horario_inicio: string;
+    data_inicial: string;
+    data_final: string;
     horarios: string[];
-    observacoes: string;
+    status: string;
 }
 
+
 export interface Receita {
-    id: string;
+    id: number;
     nome: string;
     medico: string;
-    dataConsulta: string;
+    medicamentos: string; // JSON string
+    statusReceita: string;
+    dataCriacaoMedico: string;
     created: string;
     updated: string;
-    observacoes: string;
-    medicamentos: Medicamento[];
 }
+
 
 export interface ReceitaStore {
     receitas: Receita[];

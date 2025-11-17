@@ -53,7 +53,7 @@ export function Modal({
 
       <DialogContent
         className={cn(
-          "bg-background relative grid w-full max-w-[calc(100%-2rem)] gap-4 rounded-lg border p-6 shadow-lg",
+          "bg-background fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid w-full max-w-[calc(100%-2rem)] gap-4 rounded-lg border p-6 shadow-lg",
           sizeMap[size],
           className
         )}

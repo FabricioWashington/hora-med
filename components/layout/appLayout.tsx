@@ -144,7 +144,7 @@ function AppLayoutContent({ children }: { children: ReactNode }) {
                         )}
                         {isMobile && <SidebarTrigger className="w-4 h-4" />}
                     </div>
-                    <div className="flex flex-col items-center justify-center flex-1">
+                    <div className="flex flex-col items-start justify-start flex-1">
                         <h1 className="text-2xl font-semibold text-(--text-main)">
                             Bem-vindo ao HoraMed 👋
                         </h1>

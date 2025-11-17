@@ -1,23 +1,19 @@
-// Função utilitária para gerar horários inteligentes para um medicamento
-// Considera: dias de tratamento, intervalo entre doses, data de início, preferências do usuário, rotina
-
 export type HorarioPreferencial = "manha" | "tarde" | "noite";
 
 export interface PreferenciasUsuario {
-  faixaHorarios: HorarioPreferencial[]; // ex: ["manha", "noite"]
-  evitarHorarios?: string[]; // ex: ["12:00", "23:00"]
-  inicioDia?: string; // ex: "06:00"
-  fimDia?: string; // ex: "22:00"
+  faixaHorarios: HorarioPreferencial[]; 
+  evitarHorarios?: string[];
+  inicioDia?: string; 
+  fimDia?: string; 
 }
 
 export interface GerarHorariosParams {
   dias: number;
   intervaloHoras: number;
-  dataInicio: string; // formato ISO
+  dataInicio: string;
   preferencias: PreferenciasUsuario;
 }
 
-// Faixas de horários típicas
 const FAIXAS = {
   manha: [6, 12],
   tarde: [12, 18],
@@ -38,11 +34,9 @@ export function gerarHorariosMedicamento({ dias, intervaloHoras, dataInicio, pre
   const totalDoses = Math.ceil((24 / intervaloHoras) * dias);
 
   for (let i = 0; i < totalDoses; i++) {
-    // Calcula próximo horário
     if (i > 0) {
       atual.setHours(atual.getHours() + intervaloHoras);
     }
-    // Ajusta para dentro do dia
     if (preferencias.inicioDia && atual.getHours() < Number(preferencias.inicioDia.split(":")[0])) {
       atual.setHours(Number(preferencias.inicioDia.split(":")[0]), 0, 0, 0);
     }
@@ -50,19 +44,15 @@ export function gerarHorariosMedicamento({ dias, intervaloHoras, dataInicio, pre
       atual.setDate(atual.getDate() + 1);
       atual.setHours(Number(preferencias.inicioDia?.split(":")[0] || "6"), 0, 0, 0);
     }
-    // Verifica faixa preferencial
     const faixa = getFaixaHora(atual.getHours());
     if (preferencias.faixaHorarios.length > 0 && faixa && !preferencias.faixaHorarios.includes(faixa)) {
-      // Se não está na faixa preferida, pula para próxima faixa
       const proximaFaixa = FAIXAS[preferencias.faixaHorarios[0]];
       atual.setHours(proximaFaixa[0], 0, 0, 0);
     }
-    // Evita horários indesejados
     const horaStr = atual.toTimeString().slice(0, 5);
     if (preferencias.evitarHorarios && preferencias.evitarHorarios.includes(horaStr)) {
       atual.setHours(atual.getHours() + 1);
     }
-    // Adiciona horário
     horarios.push(atual.toISOString());
   }
   return horarios;
