@@ -1,360 +1,240 @@
-# 🏥 HoraMed - Sistema de Gerenciamento de Receitas Médicas
+# Hora Med – Sistema de Organização e Lembrete de Medicamentos
 
-Sistema web para gerenciamento de receitas médicas e controle de medicamentos com notificações automáticas.
+O Hora Med é um aplicativo focado na organização de medicamentos e nos horários de uso. O objetivo é facilitar a adesão ao tratamento, reduzir esquecimentos e ajudar usuários, familiares e cuidadores a monitorar o uso correto de remédios.
+
+Este projeto contém **Frontend (PWA em Next.js)** e **Backend (Node.js + Express + Prisma + SQLite)**.
 
 ## 👥 Equipe de Desenvolvimento
 
 - **Juan Cezar Bethonico de Carvalho** - RA: 72500134
+- **Gabriel Araújo Guimarães Trois** - RA: 72500606
 - **Fabricio Washington Da Silva Lima** - RA: 72500712
-- **Gabriel Araújo GuimarãesTrois** - RA: 72500606
 
-## 📋 Sobre o Projeto
+## 1. Problema
 
-O HoraMed é uma aplicação Progressive Web App (PWA) desenvolvida com Next.js que permite aos usuários gerenciar suas receitas médicas, acompanhar medicamentos e receber notificações nos horários programados para tomar os remédios.
+Muitas pessoas esquecem de tomar seus medicamentos nos horários corretos, causando falhas no tratamento, reincidências de sintomas, riscos de internações e dificuldade no controle de receitas médicas. Além disso, familiares e cuidadores têm dificuldade em acompanhar o uso correto dos remédios.
 
-### Principais Funcionalidades
+## 2. Justificativa
 
-- 📊 Dashboard com estatísticas de receitas e medicamentos
-- 💊 Cadastro e gerenciamento de medicamentos
-- 🔔 Sistema de notificações automáticas para lembrete de medicamentos
-- 📱 Funciona como PWA (Progressive Web App) - pode ser instalado no dispositivo
-- 📈 Gráficos de análise de uso de medicamentos
-- ⏰ Gerenciamento de horários de medicação
+A adesão correta ao tratamento é um dos maiores desafios de saúde pública, especialmente para idosos, pacientes com doenças crônicas e pessoas polimedicadas.
 
-## 🚀 Como Executar o Projeto
+Organizar e lembrar horários de medicamentos contribui diretamente para o **ODS 3 – Saúde e Bem-Estar**, promovendo mais autonomia, segurança e qualidade de vida aos usuários.
+
+## 3. Público-Alvo
+
+O aplicativo é destinado a:
+
+- Idosos que fazem uso recorrente de medicação
+- Pessoas com doenças crônicas
+- Usuários que precisam organizar horários diários de remédios
+- Cuidadores e familiares que acompanham tratamentos
+- Qualquer pessoa que deseje melhorar controle e rotina de medicamentos
+
+## 4. Objetivos do Aplicativo
+
+- Permitir cadastro e visualização de medicamentos e horários
+- Organizar receitas de forma clara e acessível
+- Reduzir esquecimentos por meio de lembretes e monitoramento
+- Melhorar a adesão ao tratamento
+- Tornar o acompanhamento da rotina médica mais simples e eficiente
+
+## 5. Tipo da Solução
+
+O Hora Med é desenvolvido como uma **PWA – Progressive Web App**, podendo ser executado no navegador e instalado como "atalho" no dispositivo.
+
+A escolha do PWA permite:
+
+- Compatibilidade multiplataforma
+- Carregamento rápido
+- Instalação leve
+- Experiência semelhante a apps nativos
+- Zero dependência de lojas (App Store / Play Store)
+
+## 6. Requisitos do Sistema
+
+### Backend (Node.js + Prisma + SQLite)
+
+- Node.js 18 ou superior
+- npm ou yarn
+- SQLite (configuração padrão)
+- Arquivo `.env` configurado
+- Porta padrão: 3000 (ou definida no `.env`)
+
+### Frontend (Next.js PWA)
+
+- Node.js 20+
+- npm ou yarn
+- Variável `NEXT_PUBLIC_API_URL` apontando para o backend
+- Navegador moderno compatível com PWA
+
+## 7. Documentação de Execução do Backend
+
+Este projeto é um backend Node.js para gerenciamento de receitas médicas, utilizando Express e Prisma ORM com banco de dados SQLite.
 
 ### Pré-requisitos
 
-- Node.js (versão 20 ou superior)
-- npm, yarn, pnpm ou bun
+- Node.js (18+)
+- npm
+- SQLite
+- Prisma instalado pelo projeto
 
-### Instalação
+### Instalação e Execução
 
-1. Clone o repositório:
-```bash
-git clone <url-do-repositorio>
-cd hora-med
-```
+#### 1. Instalar dependências
 
-2. Instale as dependências:
+No diretório raiz do projeto, execute:
+
 ```bash
 npm install
-# ou
-yarn install
-# ou
-pnpm install
-# ou
-bun install
 ```
 
-3. Configure as variáveis de ambiente:
+#### 2. Configurar variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+Crie um arquivo `.env` na raiz do projeto:
+
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
+DATABASE_URL="file:./dev.db"
+PORT=3000
 ```
 
-4. Execute o servidor de desenvolvimento:
+Você pode alterar o caminho do banco conforme necessário.
+
+#### 3. Executar as migrações do Prisma
+
+Para criar o banco e aplicar as migrações:
+
 ```bash
-npm run dev
-# ou
-yarn dev
-# ou
-pnpm dev
-# ou
-bun dev
+npm run migrate
 ```
 
-5. Abra [http://localhost:3001](http://localhost:3001) no seu navegador para ver a aplicação.
-
-### Build para Produção
-
-Para criar uma build de produção:
+Ou:
 
 ```bash
-npm run build
+npx prisma migrate dev
+```
+
+#### 4. Gerar o cliente Prisma
+
+```bash
+npm run generate
+```
+
+#### 5. Iniciar o servidor
+
+Para ambiente de produção:
+
+```bash
 npm start
 ```
 
-## 🔧 Tecnologias Utilizadas
+Para desenvolvimento (com hot reload):
+
+```bash
+npm run dev
+```
+
+O servidor estará disponível na porta definida pela variável `PORT` (padrão: 3000).
+
+Acesse: `http://localhost:3000`
+
+## 8. Endpoints da API
+
+A API está disponível sob o prefixo `/api`.
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/receitas` | Lista todas as receitas |
+| POST | `/api/receitas` | Cria uma nova receita |
+| GET | `/api/receitas/:id` | Busca receita por ID |
+| PUT | `/api/receitas/:id` | Atualiza receita por ID |
+| DELETE | `/api/receitas/:id` | Remove receita por ID |
+
+O campo `medicamentos` deve ser enviado como array; ele é salvo como JSON string no banco.
+
+## 9. Estrutura de Pastas (Backend)
+
+```
+src/
+ ├── controllers/      # Lógica dos controllers
+ ├── repositories/     # Repositórios de acesso a dados
+ ├── routes/           # Rotas da API
+ └── services/         # Lógica de negócio
+prisma/
+ ├── schema.prisma     # Configuração do banco
+ └── migrations/       # Migrações
+```
+
+## 10. Documentação do Frontend (PWA)
+
+### Instalação
+
+```bash
+npm install
+```
+
+### Variáveis de ambiente
+
+Crie um arquivo `.env.local` na raiz do frontend:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
+
+### Execução
+
+```bash
+npm run dev
+```
+
+Acesse: `http://localhost:3000`
+
+## 11. Credenciais de Teste (Login)
+
+- **E-mail:** `teste@horamed.com`
+- **Senha:** `123456`
+
+## 12. Scripts Disponíveis
+
+### Backend
+
+- `npm start`: Inicia o servidor
+- `npm run dev`: Inicia o servidor em modo desenvolvimento (hot reload)
+- `npm run migrate`: Executa as migrações do banco
+- `npm run generate`: Gera o cliente Prisma
+- `npx prisma studio`: Abre o Prisma Studio para gerenciar dados via interface web
 
 ### Frontend
-- **Next.js 16** - Framework React com renderização híbrida
-- **React 19** - Biblioteca para construção de interfaces
-- **TypeScript** - Superset JavaScript com tipagem estática
-- **Tailwind CSS** - Framework CSS utilitário
-- **Radix UI** - Componentes UI acessíveis e personalizáveis
-- **Recharts** - Biblioteca de gráficos para React
-- **Lucide React** - Ícones modernos
 
-### Funcionalidades Especiais
-- **next-pwa** - Transformação da aplicação em PWA
-- **Service Workers** - Para notificações e cache offline
-- **Axios** - Cliente HTTP para comunicação com API
-- **React Hook Form** - Gerenciamento de formulários
-- **Sonner** - Sistema de notificações toast
+- `npm run dev`: Inicia o servidor de desenvolvimento
+- `npm run build`: Compila o projeto para produção
+- `npm start`: Inicia o servidor em modo produção
 
-## 📡 Documentação da API
+## 13. Screenshots
 
-A aplicação consome uma API REST para gerenciar receitas médicas. Todas as rotas são baseadas na URL configurada em `NEXT_PUBLIC_API_URL`.
+![Screenshot 1](screenshots/Captura%20de%20tela%20de%202025-11-21%2020-02-19.png)
 
-### Base URL
-```
-http://localhost:3001/api/receitas
-```
+![Screenshot 2](screenshots/Captura%20de%20tela%20de%202025-11-21%2020-02-41.png)
 
-### Endpoints
+![Screenshot 3](screenshots/Captura%20de%20tela%20de%202025-11-21%2020-03-05.png)
 
-#### 1. Listar todas as receitas
-```http
-GET /api/receitas
-```
+![Screenshot 4](screenshots/Captura%20de%20tela%20de%202025-11-21%2020-04-10.png)
 
-**Resposta de Sucesso (200):**
-```json
-[
-  {
-    "id": 1,
-    "nome": "Receita Hipertensão",
-    "medico": "Dr. João Silva",
-    "medicamentos": "[{\"nome\":\"Losartana\",\"quantidade_comprimidos\":30,\"quantidade_dia\":1,\"quantidade_mes\":30,\"intervalo_horas\":24,\"horario_inicio\":\"08:00\",\"data_inicial\":\"2024-01-01\",\"data_final\":\"2024-12-31\",\"horarios\":[\"08:00\"],\"status\":\"ativo\"}]",
-    "statusReceita": "ativa",
-    "dataCriacaoMedico": "2024-01-15",
-    "created": "2024-01-15T10:00:00Z",
-    "updated": "2024-01-15T10:00:00Z"
-  }
-]
-```
+![Screenshot 5](screenshots/Captura%20de%20tela%20de%202025-11-21%2020-04-20.png)
 
-#### 2. Buscar receita por ID
-```http
-GET /api/receitas/:id
-```
+![Screenshot 6](screenshots/Captura%20de%20tela%20de%202025-11-21%2020-05-07.png)
 
-**Parâmetros:**
-- `id` (number): ID da receita
+![Screenshot 7](screenshots/Captura%20de%20tela%20de%202025-11-21%2020-05-20.png)
 
-**Resposta de Sucesso (200):**
-```json
-{
-  "id": 1,
-  "nome": "Receita Hipertensão",
-  "medico": "Dr. João Silva",
-  "medicamentos": "[...]",
-  "statusReceita": "ativa",
-  "dataCriacaoMedico": "2024-01-15",
-  "created": "2024-01-15T10:00:00Z",
-  "updated": "2024-01-15T10:00:00Z"
-}
-```
+![Screenshot 8](screenshots/Captura%20de%20tela%20de%202025-11-21%2020-05-31.png)
 
-#### 3. Criar nova receita
-```http
-POST /api/receitas
-```
+![Screenshot 9](screenshots/Captura%20de%20tela%20de%202025-11-21%2020-05-41.png)
 
-**Body:**
-```json
-{
-  "nome": "Receita Diabetes",
-  "medico": "Dra. Maria Santos",
-  "medicamentos": "[{\"nome\":\"Metformina\",\"quantidade_comprimidos\":60,\"quantidade_dia\":2,\"quantidade_mes\":60,\"intervalo_horas\":12,\"horario_inicio\":\"08:00\",\"data_inicial\":\"2024-01-01\",\"data_final\":\"2024-12-31\",\"horarios\":[\"08:00\",\"20:00\"],\"status\":\"ativo\"}]",
-  "statusReceita": "ativa",
-  "dataCriacaoMedico": "2024-01-20"
-}
-```
+## Observações
 
-**Resposta de Sucesso (201):**
-```json
-{
-  "id": 2,
-  "nome": "Receita Diabetes",
-  "medico": "Dra. Maria Santos",
-  "medicamentos": "[...]",
-  "statusReceita": "ativa",
-  "dataCriacaoMedico": "2024-01-20",
-  "created": "2024-01-20T14:30:00Z",
-  "updated": "2024-01-20T14:30:00Z"
-}
-```
+- O projeto utiliza SQLite por padrão, mas pode ser adaptado para outros bancos editando o arquivo `prisma/schema.prisma` e a variável `DATABASE_URL`.
+- Certifique-se de que o banco de dados está acessível e que as migrações foram aplicadas.
+- Para dúvidas sobre variáveis de ambiente, consulte `.env.example` (se existir) ou peça orientação ao responsável pelo projeto.
 
-#### 4. Atualizar receita
-```http
-PUT /api/receitas/:id
-```
+---
 
-**Parâmetros:**
-- `id` (number): ID da receita
-
-**Body (campos opcionais):**
-```json
-{
-  "nome": "Receita Diabetes Atualizada",
-  "statusReceita": "inativa"
-}
-```
-
-**Resposta de Sucesso (200):**
-```json
-{
-  "id": 2,
-  "nome": "Receita Diabetes Atualizada",
-  "medico": "Dra. Maria Santos",
-  "medicamentos": "[...]",
-  "statusReceita": "inativa",
-  "dataCriacaoMedico": "2024-01-20",
-  "created": "2024-01-20T14:30:00Z",
-  "updated": "2024-01-21T09:15:00Z"
-}
-```
-
-#### 5. Deletar receita
-```http
-DELETE /api/receitas/:id
-```
-
-**Parâmetros:**
-- `id` (number): ID da receita
-
-**Resposta de Sucesso (204):**
-```
-No Content
-```
-
-### Estrutura de Dados
-
-#### Receita
-```typescript
-interface Receita {
-  id: number;
-  nome: string;
-  medico: string;
-  medicamentos: string; // JSON string com array de medicamentos
-  statusReceita: string;
-  dataCriacaoMedico: string;
-  created: string;
-  updated: string;
-}
-```
-
-#### Medicamento
-```typescript
-interface MedicamentoReceita {
-  nome: string;
-  quantidade_comprimidos: number;
-  quantidade_dia: number;
-  quantidade_mes: number;
-  intervalo_horas: number;
-  horario_inicio: string;
-  data_inicial: string;
-  data_final: string;
-  horarios: string[];
-  status: string; // "ativo" | "inativo"
-}
-```
-
-### Códigos de Status HTTP
-
-- `200` - OK: Requisição bem-sucedida
-- `201` - Created: Recurso criado com sucesso
-- `204` - No Content: Recurso deletado com sucesso
-- `400` - Bad Request: Dados inválidos
-- `404` - Not Found: Recurso não encontrado
-- `500` - Internal Server Error: Erro no servidor
-
-### Exemplo de Uso com Axios
-
-```typescript
-import axios from 'axios';
-
-const API_URL = 'http://localhost:3001/api/receitas';
-
-// Listar receitas
-const receitas = await axios.get(API_URL);
-
-// Criar receita
-const novaReceita = await axios.post(API_URL, {
-  nome: "Receita Exemplo",
-  medico: "Dr. Exemplo",
-  medicamentos: JSON.stringify([...]),
-  statusReceita: "ativa",
-  dataCriacaoMedico: "2024-01-01"
-});
-
-// Atualizar receita
-const receitaAtualizada = await axios.put(`${API_URL}/1`, {
-  statusReceita: "inativa"
-});
-
-// Deletar receita
-await axios.delete(`${API_URL}/1`);
-```
-
-## 📂 Estrutura do Projeto
-
-```
-hora-med/
-├── app/                    # Páginas e rotas da aplicação
-│   ├── content.tsx        # Dashboard principal
-│   ├── horarios/          # Página de gerenciamento de horários
-│   ├── login/             # Página de login
-│   └── layout.tsx         # Layout principal
-├── components/            # Componentes reutilizáveis
-│   └── ui/               # Componentes de interface
-├── services/             # Serviços de API
-│   └── receita.service.ts # Service para comunicação com API de receitas
-├── types/                # Definições de tipos TypeScript
-│   └── receita.ts        # Tipos relacionados a receitas
-├── public/               # Arquivos estáticos
-│   └── medication-sw.js  # Service Worker para notificações
-└── package.json          # Dependências do projeto
-```
-
-## 🔔 Sistema de Notificações
-
-O aplicativo utiliza Service Workers para agendar e enviar notificações push nos horários programados para cada medicamento. As notificações funcionam mesmo quando o aplicativo está fechado (se instalado como PWA).
-
-### Como Funciona
-
-1. Ao carregar as receitas, o sistema identifica todos os medicamentos ativos
-2. Para cada medicamento, os horários são registrados no Service Worker
-3. Nos horários programados, uma notificação é enviada ao usuário
-4. O usuário precisa conceder permissão para notificações no primeiro acesso
-
-## 🎨 Temas e Customização
-
-O projeto utiliza variáveis CSS customizadas para cores, que podem ser ajustadas em `app/globals.css`:
-
-```css
---primary: #0A6CF1;
---secondary: #6B7280;
---tertiary: #1F2937;
-```
-
-## 📱 Progressive Web App (PWA)
-
-O HoraMed é configurado como PWA, permitindo:
-
-- Instalação no dispositivo (mobile e desktop)
-- Funcionamento offline (cache de recursos)
-- Notificações push
-- Ícone na tela inicial
-- Experiência similar a aplicativo nativo
-
-## 🤝 Contribuindo
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto foi desenvolvido para fins acadêmicos.
-
-## 📧 Contato
-
-- Juan Cezar Bethonico de Carvalho - RA: 72500134
-- Fabricio Washington Da Silva Lima - RA: 72500712
-
+Para mais detalhes, consulte os arquivos de código ou entre em contato com o desenvolvedor responsável.
